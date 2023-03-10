@@ -1,7 +1,9 @@
 import { Request, Response, Router } from "express";
 import { isEmpty } from "lodash";
 import { uuid } from "uuidv4";
+import GetBoxAppAuthClient from "./core/GetBoxAppAuthClient";
 import GetBoxEnterPriseClient from "./core/GetBoxEnterpriseClient";
+import GetBoxUserClient from "./core/GetBoxUserClient";
 
 const router = Router();
 
@@ -29,6 +31,26 @@ router.post("/", async (req: Request, res: Response) => {
   });
 
   return res.status(200).json(user);
+});
+
+// delete users api
+router.delete("/:userId", async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  if (isEmpty(userId)) {
+    return res.status(400).json({
+      message: "`userId` is required",
+    });
+  }
+
+  try {
+    const user = await GetBoxAppAuthClient().users.delete(userId);
+    return res.status(200).json(user);
+  } catch ({ message }) {
+    return res.status(400).json({
+      message,
+    });
+  }
 });
 
 export default router;
