@@ -13,11 +13,12 @@ router.get("/", async (req: Request, res: Response) => {
 
 // create user api
 router.post("/", async (req: Request, res: Response) => {
-  const { name, login } = req.body;
+  const { name } = req.body;
+  const login = null; // login is not required
 
-  if (isEmpty(name) || isEmpty(login)) {
+  if (isEmpty(name)) {
     return res.status(400).json({
-      message: "name and login are required",
+      message: "name is required",
     });
   }
 
