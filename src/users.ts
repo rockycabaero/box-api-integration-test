@@ -44,7 +44,9 @@ router.delete("/:userId", async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await GetBoxAppAuthClient().users.delete(userId);
+    const user = await GetBoxAppAuthClient().users.delete(userId, {
+      force: true,
+    });
     return res.status(200).json(user);
   } catch ({ message }) {
     return res.status(400).json({

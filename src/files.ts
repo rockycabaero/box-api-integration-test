@@ -29,16 +29,15 @@ router.post("/upload", async (req: Request, res: Response) => {
   try {
     if (!userId) throw new Error("`userId` is required");
 
-    const result = await client.files.uploadFile("0", "testfile.json", stream);
+    const result = await client.files.uploadFile(
+      "0",
+      `${Date.now()}.json`,
+      stream
+    );
     return res.status(200).json(result);
   } catch ({ message }) {
     return res.status(400).json({ message });
   }
-});
-
-router.post('/:fileId', async (req: Request, res: Response) => {
-  const {fileId, userId} = req.params;
-  
 });
 
 export default router;
