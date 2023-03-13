@@ -1,18 +1,19 @@
 import { Request, Response, Router } from "express";
-import { createReadStream } from "fs";
-import { join } from "path";
 import GetBoxUserClient from "./core/GetBoxUserClient";
 
 const router = Router({ mergeParams: true });
 
-// list files on root folder
-router.get("/", async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  const client = GetBoxUserClient(userId);
+//get file data by fileId
+router.get("/:fileId", async (req: Request, res: Response) => {
+  const { fileId, userId, folderId } = req.params;
 
   try {
     if (!userId) throw new Error("`userId` is required");
-    const result = await client.folders.getItems("0");
+    if (!fileId) throw new Error("`fileId` is required");
+    if (!folderId) throw new Error("`folderId` is required");
+
+    const client = GetBoxUserClient(userId);
+    const result = await client.files.get(fileId);
 
     return res.status(200).json(result);
   } catch ({ message }) {
@@ -20,20 +21,36 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/upload", async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
-  const client = GetBoxUserClient(userId);
-  const stream = createReadStream(join(__dirname, "./test/testfile.json"));
+// delete file by fileId
+router.delete("/:fileId", async (req: Request, res: Response) => {
+  const { fileId, userId, folderId } = req.params;
 
   try {
     if (!userId) throw new Error("`userId` is required");
+    if (!fileId) throw new Error("`fileId` is required");
+    if (!folderId) throw new Error("`folderId` is required");
 
-    const result = await client.files.uploadFile(
-      "0",
-      `${Date.now()}.json`,
-      stream
-    );
+    const client = GetBoxUserClient(userId);
+    const result = await client.files.delete(fileId);
+
+    return res.status(200).json(result);
+  } catch ({ message }) {
+    return res.status(400).json({ message });
+  }
+});
+
+// download file by fileId
+router.get("/:fileId/download", async (req: Request, res: Response) => {
+  const { fileId, userId, folderId } = req.params;
+
+  try {
+    if (!userId) throw new Error("`userId` is required");
+    if (!fileId) throw new Error("`fileId` is required");
+    if (!folderId) throw new Error("`folderId` is required");
+
+    const client = GetBoxUserClient(userId);
+    const result = await client.files.getDownloadURL(fileId);
+
     return res.status(200).json(result);
   } catch ({ message }) {
     return res.status(400).json({ message });
